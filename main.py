@@ -6,9 +6,6 @@ from keras.models import model_from_json
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
-from keras.layers import Conv2D, MaxPooling2D
-from keras.layers import Dense, Dropout, Flatten
-from keras.models import Sequential
 from tqdm import tqdm
 
 x_train = []
@@ -34,6 +31,8 @@ x_train = x_data[:split]
 x_valid = x_data[split:]
 y_train = y_data[:split]
 y_valid = y_data[split:]
+
+'''
 
 
 model = Sequential()
@@ -61,7 +60,7 @@ model = model_from_json(model_json)
 
 model.load_weights("model.h5")
 
-'''
+
 print("*** Saving Old Model ***")
 # Serialize to JSON
 model_json = model.to_json()
@@ -79,7 +78,7 @@ model.compile(loss='binary_crossentropy',
 
 model.fit(x_train, y_train,
           batch_size=128,
-          epochs=10,
+          epochs=3,
           verbose=1,
           validation_data=(x_valid, y_valid))
 
@@ -99,7 +98,7 @@ print("Saved model to disk")
 
 
 #from sklearn.metrics import fbeta_score
-#
+
 #p_valid = model.predict(x_valid, batch_size=128)
 #print(y_valid)
 #print(p_valid)

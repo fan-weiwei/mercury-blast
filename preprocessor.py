@@ -38,6 +38,17 @@ def test_file_names():
             data.append(name)
     return data
 
+def train_file_names():
+    data = []
+    with open('../sample_submission.csv', 'r') as f:
+        raw = f.read()
+        lines = raw.splitlines()
+        records = list(map(lambda x: x.split(','), lines[1:]))
+        for rec in records:
+            name = rec[0]
+            data.append(name)
+    return data
+
 def convert_test_jpg_to_small():
     data = []
     with open('../sample_submission.csv', 'r') as f:
