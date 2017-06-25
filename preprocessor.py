@@ -66,6 +66,35 @@ def convert_test_jpg_to_small():
     print(*data[:10], sep='\n')
     print(models.mapping)
 
+def convert_test_jpg_to_medium():
+    data = []
+    with open('../sample_submission.csv', 'r') as f:
+        raw = f.read()
+        lines = raw.splitlines()
+        records = list(map(lambda x: x.split(','), lines[1:]))
+        for rec in records:
+            name = rec[0]
+            data.append(name)
+
+    for record in tqdm(data):
+        try:
+            im = Image.open('../test-jpg/{}.jpg'.format(record))
+            im.thumbnail((64, 64))
+            im.save('../test-jpg-medium/{}.jpg'.format(record), "JPEG")
+        except IOError:
+            pass
+
+        try:
+            im = Image.open('../test-jpg-additional/{}.jpg'.format(record))
+            im.thumbnail((64, 64))
+            im.save('../test-jpg-medium/{}.jpg'.format(record), "JPEG")
+        except IOError:
+            pass
+
+    print(*data[:10], sep='\n')
+    print(models.mapping)
+
+
 # im.show()
 # print(im.format, im.size, im.mode)
 

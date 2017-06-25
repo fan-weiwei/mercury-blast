@@ -48,5 +48,5 @@ model.compile(loss='binary_crossentropy',
               metrics=['accuracy'])
 
 print("*** Evaluating Model ***")
-scores = model.evaluate(x_train, y_train, verbose=0)
+scores = model.evaluate(x_valid, y_valid, verbose=0)
 print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))

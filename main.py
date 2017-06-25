@@ -1,7 +1,7 @@
-import cv2
 import numpy as np  # linear algebra
 import preprocessor
 import models
+from keras.models import model_from_json
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
@@ -35,6 +35,7 @@ x_valid = x_data[split:]
 y_train = y_data[:split]
 y_valid = y_data[split:]
 
+
 model = Sequential()
 model.add(Conv2D(32, kernel_size=(3, 3),
                  activation='relu',
@@ -45,24 +46,48 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.50))
+model.add(Dropout(0.5))
 model.add(Dense(17, activation='sigmoid'))
 
+
+'''
+
+print("*** Loading Model ***")
+# load json and create model
+json_file = open('model.json', 'r')
+model_json = json_file.read()
+json_file.close()
+model = model_from_json(model_json)
+
+model.load_weights("model.h5")
+
+'''
+print("*** Saving Old Model ***")
+# Serialize to JSON
+model_json = model.to_json()
+with open("model-old.json", "w") as json_file:
+    json_file.write(model_json)
+
+model.save_weights("model-old.h5")
+
+print("*** Compiling Model ***")
 model.compile(loss='binary_crossentropy',
               # We NEED binary here, since categorical_crossentropy l1 norms the output before calculating loss.
               optimizer='adam',
               metrics=['accuracy'])
 
+
 model.fit(x_train, y_train,
           batch_size=128,
-          epochs=30,
+          epochs=10,
           verbose=1,
           validation_data=(x_valid, y_valid))
-print("Done training")
 
+print("*** Evaluating Model ***")
 scores = model.evaluate(x_train, y_train, verbose=0)
 print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
+print("*** Saving Model ***")
 # Serialize to JSON
 model_json = model.to_json()
 with open("model.json", "w") as json_file:
