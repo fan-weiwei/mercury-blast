@@ -20,8 +20,18 @@ class AnnotatedRecord:
             targets[mapping[t]] = 1
         return targets
 
+    def one_hot_weather(self) -> object:
+        targets = np.zeros(4)
+        for t in self.annotations:
+            if t in weather_map:
+              targets[weather_map[t]] = 1
+        return targets
+
     def small_image(self):
         return cv2.imread('../train-jpg-small/{}.jpg'.format(self.name))
+
+    def medium_image(self):
+        return cv2.imread('../train-jpg-medium/{}.jpg'.format(self.name))
 
 mapping = {
 
@@ -50,4 +60,16 @@ mapping = {
 
 }
 
+weather_map = {
+
+    # weather labels, exactly 1
+    'clear' : 0,
+    'partly_cloudy' : 1,
+    'haze' : 2,
+    'cloudy' : 3,
+
+}
+
 inv_mapping = {i: l for l, i in mapping.items()}
+
+weather_inv_map = {i: l for l, i in weather_map.items()}

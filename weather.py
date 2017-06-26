@@ -1,9 +1,12 @@
-import numpy as np  # linear algebra
-import preprocessor
-import models
-from keras.models import model_from_json
-
 import os
+
+import numpy as np  # linear algebra
+from keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense
+from keras.models import Sequential, model_from_json
+
+import models
+import preprocessor
+
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
 from tqdm import tqdm
@@ -17,8 +20,8 @@ data = preprocessor.read_data('../train.csv')
 print('*** Importing images ***')
 
 for item in tqdm(data):
-    x_train.append(models.AnnotatedRecord.small_image(item))
-    y_train.append(models.AnnotatedRecord.some_hot(item))
+    x_train.append(models.AnnotatedRecord.medium_image(item))
+    y_train.append(models.AnnotatedRecord.one_hot_weather(item))
 
 x_data = np.array(x_train, np.float16) / 255.
 y_data = np.array(y_train, np.uint8)
@@ -31,46 +34,44 @@ x_train = x_data[:split]
 x_valid = x_data[split:]
 y_train = y_data[:split]
 y_valid = y_data[split:]
-
 '''
-
 
 model = Sequential()
 model.add(Conv2D(32, kernel_size=(3, 3),
                  activation='relu',
-                 input_shape=(32, 32, 3)))
-
-model.add(Conv2D(64, (3, 3), activation='relu'))
+                 input_shape=(64, 64, 3)))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Conv2D(32, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 model.add(Flatten())
-model.add(Dense(128, activation='relu'))
+model.add(Dense(32, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(17, activation='sigmoid'))
-
+model.add(Dense(4, activation='softmax'))
 
 '''
 
+
 print("*** Loading Model ***")
 # load json and create model
-json_file = open('model.json', 'r')
+json_file = open('model-weather.json', 'r')
 model_json = json_file.read()
 json_file.close()
 model = model_from_json(model_json)
 
-model.load_weights("model.h5")
+model.load_weights("model-weather.h5")
 
 
 print("*** Saving Old Model ***")
 # Serialize to JSON
 model_json = model.to_json()
-with open("model-old.json", "w") as json_file:
+with open("model-weather-old.json", "w") as json_file:
     json_file.write(model_json)
 
-model.save_weights("model-old.h5")
+model.save_weights("model-weather-old.h5")
 
 print("*** Compiling Model ***")
-model.compile(loss='binary_crossentropy',
+model.compile(loss='categorical_crossentropy',
               # We NEED binary here, since categorical_crossentropy l1 norms the output before calculating loss.
               optimizer='adam',
               metrics=['accuracy'])
@@ -89,10 +90,10 @@ print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 print("*** Saving Model ***")
 # Serialize to JSON
 model_json = model.to_json()
-with open("model.json", "w") as json_file:
+with open("model-weather.json", "w") as json_file:
     json_file.write(model_json)
 
-model.save_weights("model.h5")
+model.save_weights("model-weather.h5")
 print("Saved model to disk")
 
 
