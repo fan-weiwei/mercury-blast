@@ -1,7 +1,8 @@
 import numpy as np  # linear algebra
 import preprocessor
 import models
-from keras.models import model_from_json
+from keras.models import model_from_json, Sequential
+from keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense, BatchNormalization
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
@@ -17,7 +18,7 @@ data = preprocessor.read_data('../train.csv')
 print('*** Importing images ***')
 
 for item in tqdm(data):
-    x_train.append(models.AnnotatedRecord.small_image(item))
+    x_train.append(models.AnnotatedRecord.medium_image(item))
     y_train.append(models.AnnotatedRecord.some_hot(item))
 
 x_data = np.array(x_train, np.float16) / 255.
@@ -32,19 +33,36 @@ x_valid = x_data[split:]
 y_train = y_data[:split]
 y_valid = y_data[split:]
 
+
 '''
-
-
 model = Sequential()
-model.add(Conv2D(32, kernel_size=(3, 3),
-                 activation='relu',
-                 input_shape=(32, 32, 3)))
+model.add(BatchNormalization(input_shape=(64, 64, 3)))
 
-model.add(Conv2D(64, (3, 3), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Conv2D(32, (3, 3), padding='same', activation='relu'))
+model.add(Conv2D(32, (3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=2))
 model.add(Dropout(0.25))
+
+model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
+model.add(Conv2D(64, (3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=2))
+model.add(Dropout(0.25))
+
+model.add(Conv2D(128, (3, 3), padding='same', activation='relu'))
+model.add(Conv2D(128, (3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=2))
+model.add(Dropout(0.25))
+
+model.add(Conv2D(256, (3, 3), padding='same', activation='relu'))
+model.add(Conv2D(256, (3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=2))
+model.add(Dropout(0.25))
+
 model.add(Flatten())
-model.add(Dense(128, activation='relu'))
+
+#model.add(Dense(64, bias=False))?
+model.add(Dense(512, activation='relu'))
+model.add(BatchNormalization())
 model.add(Dropout(0.5))
 model.add(Dense(17, activation='sigmoid'))
 
@@ -64,10 +82,10 @@ model.load_weights("model.h5")
 print("*** Saving Old Model ***")
 # Serialize to JSON
 model_json = model.to_json()
-with open("model-old.json", "w") as json_file:
+with open("./models/model-old.json", "w") as json_file:
     json_file.write(model_json)
 
-model.save_weights("model-old.h5")
+model.save_weights("./models/model-old.h5")
 
 print("*** Compiling Model ***")
 model.compile(loss='binary_crossentropy',
@@ -78,7 +96,7 @@ model.compile(loss='binary_crossentropy',
 
 model.fit(x_train, y_train,
           batch_size=128,
-          epochs=50,
+          epochs=20,
           verbose=1,
           validation_data=(x_valid, y_valid))
 

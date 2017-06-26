@@ -17,7 +17,7 @@ x_test = []
 file_names = preprocessor.test_file_names()
 
 for name in tqdm(file_names):
-    img = cv2.imread('../test-jpg-small/{}.jpg'.format(name))
+    img = cv2.imread('../test-jpg-medium/{}.jpg'.format(name))
     x_test.append(img)
 
 x_data = np.array(x_test, np.float16) / 255.
@@ -26,12 +26,12 @@ print(x_data.shape)
 
 print("*** Loading Model ***")
 # load json and create model
-json_file = open('model.json', 'r')
+json_file = open('./modes/model.json', 'r')
 model_json = json_file.read()
 json_file.close()
 model = model_from_json(model_json)
 
-model.load_weights("model.h5")
+model.load_weights("./models/model.h5")
 
 print("*** Compiling Model ***")
 model.compile(loss='binary_crossentropy',
@@ -54,7 +54,7 @@ for prediction in predictions:
 
 print(*predictions_labels[:10], sep='\n')
 
-to_remove = ['clear', 'partly_cloudy', 'haze', 'cloudy']
+to_remove = []
 
 tags_list = [None] * len(predictions_labels)
 for i, tags in enumerate(predictions_labels):
