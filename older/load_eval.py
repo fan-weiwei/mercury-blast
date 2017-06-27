@@ -1,6 +1,9 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
-
+"""
+*** FOR EXAMPLE PURPOSES ***
+"""
+'''
 from keras.models import model_from_json
 import numpy as np  # linear algebra
 from tqdm import tqdm
@@ -50,3 +53,4 @@ model.compile(loss='binary_crossentropy',
 print("*** Evaluating Model ***")
 scores = model.evaluate(x_valid, y_valid, verbose=0)
 print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+'''

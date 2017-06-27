@@ -34,7 +34,6 @@ y_train = y_data[:split]
 y_valid = y_data[split:]
 
 
-'''
 model = Sequential()
 model.add(BatchNormalization(input_shape=(64, 64, 3)))
 
@@ -66,7 +65,6 @@ model.add(BatchNormalization())
 model.add(Dropout(0.5))
 model.add(Dense(17, activation='sigmoid'))
 
-
 '''
 
 print("*** Loading Model ***")
@@ -78,7 +76,7 @@ model = model_from_json(model_json)
 
 model.load_weights("model.h5")
 
-
+'''
 print("*** Saving Old Model ***")
 # Serialize to JSON
 model_json = model.to_json()
@@ -96,7 +94,7 @@ model.compile(loss='binary_crossentropy',
 
 model.fit(x_train, y_train,
           batch_size=128,
-          epochs=20,
+          epochs=1,
           verbose=1,
           validation_data=(x_valid, y_valid))
 
@@ -107,10 +105,10 @@ print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 print("*** Saving Model ***")
 # Serialize to JSON
 model_json = model.to_json()
-with open("model.json", "w") as json_file:
+with open("./models/model.json", "w") as json_file:
     json_file.write(model_json)
 
-model.save_weights("model.h5")
+model.save_weights("./models/model.h5")
 print("Saved model to disk")
 
 

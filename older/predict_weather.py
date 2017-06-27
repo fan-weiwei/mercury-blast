@@ -1,3 +1,7 @@
+"""
+*** FOR EXAMPLE PURPOSES ***
+"""
+'''
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
@@ -61,3 +65,5 @@ final_df = pd.DataFrame(final_data, columns=['image_name', 'tags'])
 final_df.head()
 
 final_df.to_csv('../partial/weather_submission_file.csv', index=False)
+
+'''

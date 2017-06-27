@@ -1,3 +1,7 @@
+"""
+*** FOR EXAMPLE PURPOSES ***
+"""
+'''
 import os
 
 import numpy as np  # linear algebra
@@ -35,7 +39,7 @@ x_valid = x_data[split:]
 y_train = y_data[:split]
 y_valid = y_data[split:]
 '''
-
+'''
 model = Sequential()
 model.add(Conv2D(32, kernel_size=(3, 3),
                  activation='relu',
@@ -48,6 +52,7 @@ model.add(Flatten())
 model.add(Dense(32, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(4, activation='softmax'))
+'''
 
 '''
 
@@ -106,4 +111,4 @@ print("Saved model to disk")
 #print(fbeta_score(y_valid, np.array(p_valid) > 0.2, beta=2, average='samples'))
 
 
-
+'''

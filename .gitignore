@@ -1,6 +1,10 @@
 *.h5
 *.json
 .idea/
+models/
+images/
+submissions/
+training-data/
 
 
 # Byte-compiled / optimized / DLL files

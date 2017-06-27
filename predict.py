@@ -26,7 +26,7 @@ print(x_data.shape)
 
 print("*** Loading Model ***")
 # load json and create model
-json_file = open('./modes/model.json', 'r')
+json_file = open('./models/model.json', 'r')
 model_json = json_file.read()
 json_file.close()
 model = model_from_json(model_json)
