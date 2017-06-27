@@ -4,7 +4,13 @@ from typing import List
 
 import models
 
-training_csv = './train.csv'
+train_csv_path = './training-data/train.csv'
+small_train_image_path = './images/small/train'
+small_test_image_path  = './images/small/test'
+
+medium_train_image_path = './images/small/train'
+medium_test_image_path  = './images/medium/test'
+
 
 def read_data(path: str) -> List[object]:
     in_data = []
@@ -19,7 +25,7 @@ def read_data(path: str) -> List[object]:
     return in_data
 
 def convert_jpg_to_medium():
-    data = read_data('../train.csv')
+    data = read_data(train_csv_path)
 
     for record in tqdm(data):
         im = Image.open('../train-jpg/{}.jpg'.format(record.name))
