@@ -1,6 +1,10 @@
-tmp_dir = './tmp/'
-train_csv_path = './training-data/train.csv'
+import os
 
+tmp_dir = './tmp/'
+training_data_path = './training-data'
+train_csv_path = training_data_path + '/train.csv'
+
+run_dir = os.getcwd()
 
 
 
