@@ -30,5 +30,13 @@ original_tif_test_image_path = original_tif_image_path + '/test'
 
 #######################################################
 
+spectral64_path = images_path + '/spectral64'
+
+
+
+
+
+#######################################################
+
 
 sample_submission_path = run_dir + '/submissions/sample_submission.csv'

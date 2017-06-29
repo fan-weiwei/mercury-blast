@@ -8,6 +8,7 @@ Usage:
   mercury-blast [-h | --help]
   mercury-blast --version
   mercury-blast train
+  mercury-blast pull
   mercury-blast spinup
   mercury-blast nuke
 
@@ -17,10 +18,10 @@ Usage:
 #from clint.textui import colored, puts, indent
 from docopt import docopt
 
-import spinup
+import pull
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Mercury Blast 1.0')
 
-    if arguments['spinup']:
-        spinup.launch()
+    if arguments['pull']:
+        pull.pull()

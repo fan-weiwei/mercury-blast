@@ -1,17 +1,10 @@
-
-
-## TODO Check for existance of full scale images
-## TODO Report diagnostic
-## TODO If full scale jpegs don't exist redownload
-## TODO Check fo existance of tifs (For NIR)
-## TODO If tifs don't exist redownload
-
 from clint.textui import colored, puts, indent
 
 import os
 import config
 import credentials
 import subprocess
+import glob
 
 def command(command, path, log=True):
     if log:
@@ -28,7 +21,9 @@ directory_structure = [
     config.original_jpg_test_image_path,
     config.original_tif_image_path,
     config.original_tif_train_image_path,
-    config.original_tif_test_image_path
+    config.original_tif_test_image_path,
+
+    config.spectral64_path
 ]
 
 def validate_directory_structure(directories):
@@ -63,7 +58,7 @@ def validate_original_jpg_train_images(tries):
         unzip_tar('train-jpg.tar', config.tmp_dir)
         move_imgs('./train-jpg/*', config.original_jpg_train_image_path, config.tmp_dir)
 
-    puts(colored.cyan('full size jpgs ok'))
+    puts(colored.cyan('train jpgs ok'))
     return True
 
 def validate_original_tif_train_images(tries):
@@ -78,9 +73,8 @@ def validate_original_tif_train_images(tries):
         unzip_tar('train-tif-v2.tar', config.tmp_dir)
         move_imgs('./train-tif-v2/*', config.original_tif_train_image_path, config.tmp_dir)
 
-    puts(colored.cyan('full size tifs ok'))
+    puts(colored.cyan('train tifs ok'))
     return True
-
 
 def validate_original_jpg_test_images(tries):
     if tries == 0:
@@ -101,7 +95,7 @@ def validate_original_jpg_test_images(tries):
         unzip_tar('test-jpg-additional.tar', config.tmp_dir)
         move_imgs('./test-jpg-additional/*', config.original_jpg_test_image_path, config.tmp_dir)
 
-    puts(colored.cyan('full size jpgs ok'))
+    puts(colored.cyan('test jpgs ok'))
     return True
 
 def validate_original_tif_test_images(tries):
@@ -116,7 +110,7 @@ def validate_original_tif_test_images(tries):
         unzip_tar('test-tif-v2.tar', config.tmp_dir)
         move_imgs('./test-tif-v2/*', config.original_tif_test_image_path, config.tmp_dir)
 
-    puts(colored.cyan('full size tifs ok'))
+    puts(colored.cyan('test tifs ok'))
     return True
 
 def validate_train_csv(tries):
@@ -176,16 +170,18 @@ def move_imgs(source, target, path):
     puts(colored.cyan('* moving files'))
     command('for file in {}; do mv -- "$file" {} ; done'.format(source, target), path, log=False)
 
-
 def clean_tmp():
     command('rm -r tmp/*', config.run_dir)
 
+def has_files(path):
+    return glob.glob(path +'/*.*').__len__() > 1
 
-def launch():
+
+def pull():
 
     with indent(4):
 
-        puts(colored.magenta('\ninitialising\n'))
+        puts(colored.magenta('\npull\n'))
 
         validate_directory_structure(directory_structure)
 
@@ -195,6 +191,5 @@ def launch():
         validate_original_tif_train_images(1)
         validate_original_jpg_test_images(1)
         validate_original_tif_test_images(1)
-
 
         puts('\n')

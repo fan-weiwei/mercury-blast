@@ -68,3 +68,5 @@ env/
 venv/
 ENV/
 
+/notebooks/Conversion.ipynb
+/notebooks/Spectral.ipynb
