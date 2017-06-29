@@ -28,10 +28,10 @@ class AnnotatedRecord:
         return targets
 
     def small_image(self):
-        return cv2.imread('~/rainforest/images/small/train/{}.jpg'.format(self.name))
+        return cv2.imread('./images/small/train/{}.jpg'.format(self.name))
 
     def medium_image(self):
-        return cv2.imread('~/rainforest/images/medium/train/{}.jpg'.format(self.name))
+        return cv2.imread('./images/medium/train/{}.jpg'.format(self.name))
 
 mapping = {
 

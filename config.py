@@ -1,3 +1,4 @@
+tmp_dir = './tmp/'
 train_csv_path = './training-data/train.csv'
 
 

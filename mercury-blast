@@ -8,20 +8,19 @@ Usage:
   mercury-blast [-h | --help]
   mercury-blast --version
   mercury-blast train
-  mercury-blast validate
-
-
+  mercury-blast spinup
+  mercury-blast nuke
 
 
 """
 
-from clint.textui import colored, puts, indent
+#from clint.textui import colored, puts, indent
 from docopt import docopt
+
+import spinup
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Mercury Blast 1.0')
 
-    if arguments['validate']:
-        with indent(4):
-            puts(colored.magenta('\nAll good\n'))
-            puts('hello world\n\n')
+    if arguments['spinup']:
+        spinup.launch()

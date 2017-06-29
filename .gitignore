@@ -5,6 +5,8 @@ models/
 images/
 submissions/
 training-data/
+credentials.py
+tmp/
 
 
 # Byte-compiled / optimized / DLL files
@@ -65,3 +67,4 @@ target/
 env/
 venv/
 ENV/
+
