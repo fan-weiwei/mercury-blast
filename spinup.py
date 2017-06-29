@@ -24,7 +24,11 @@ directory_structure = [
     config.images_path,
     config.training_data_dir,
     config.original_jpg_image_path,
-    config.original_jpg_train_image_path
+    config.original_jpg_train_image_path,
+    config.original_jpg_test_image_path,
+    config.original_tif_image_path,
+    config.original_tif_train_image_path,
+    config.original_tif_test_image_path
 ]
 
 def validate_directory_structure(directories):
@@ -57,12 +61,63 @@ def validate_original_jpg_train_images(tries):
         download_kaggle_file('train-jpg.tar.7z', config.tmp_dir)
         unzip_7z('train-jpg.tar.7z', config.tmp_dir)
         unzip_tar('train-jpg.tar', config.tmp_dir)
-        move_jpgs('./train-jpg/*', config.original_jpg_train_image_path, config.tmp_dir)
-        clean_tmp()
+        move_imgs('./train-jpg/*', config.original_jpg_train_image_path, config.tmp_dir)
 
     puts(colored.cyan('full size jpgs ok'))
     return True
 
+def validate_original_tif_train_images(tries):
+    if tries == 0:
+        puts(colored.cyan('failed to validate tif training images'))
+        return False
+
+    if not os.path.isfile(config.original_tif_train_image_path + '/train_0.tif'):
+        puts(colored.red('downloading original train tifs'))
+        download_kaggle_file('train-tif-v2.tar.7z', config.tmp_dir)
+        unzip_7z('train-tif-v2.tar.7z', config.tmp_dir)
+        unzip_tar('train-tif-v2.tar', config.tmp_dir)
+        move_imgs('./train-tif-v2/*', config.original_tif_train_image_path, config.tmp_dir)
+
+    puts(colored.cyan('full size tifs ok'))
+    return True
+
+
+def validate_original_jpg_test_images(tries):
+    if tries == 0:
+        puts(colored.cyan('failed to validate training images'))
+        return False
+
+    if not os.path.isfile(config.original_jpg_test_image_path + '/test_0.jpg'):
+        puts(colored.red('downloading original test jpgs'))
+        download_kaggle_file('test-jpg.tar.7z', config.tmp_dir)
+        unzip_7z('test-jpg.tar.7z', config.tmp_dir)
+        unzip_tar('test-jpg.tar', config.tmp_dir)
+        move_imgs('./test-jpg/*', config.original_jpg_test_image_path, config.tmp_dir)
+
+    if not os.path.isfile(config.original_jpg_test_image_path + '/file_0.jpg'):
+        puts(colored.red('downloading original sized additional test jpgs'))
+        download_kaggle_file('test-jpg-additional.tar.7z', config.tmp_dir)
+        unzip_7z('test-jpg-additional.tar.7z', config.tmp_dir)
+        unzip_tar('test-jpg-additional.tar', config.tmp_dir)
+        move_imgs('./test-jpg-additional/*', config.original_jpg_test_image_path, config.tmp_dir)
+
+    puts(colored.cyan('full size jpgs ok'))
+    return True
+
+def validate_original_tif_test_images(tries):
+    if tries == 0:
+        puts(colored.cyan('failed to validate tif training images'))
+        return False
+
+    if not os.path.isfile(config.original_tif_test_image_path + '/test_0.tif'):
+        puts(colored.red('downloading original test tifs'))
+        download_kaggle_file('test-tif-v2.tar.7z', config.tmp_dir)
+        unzip_7z('test-tif-v2.tar.7z', config.tmp_dir)
+        unzip_tar('test-tif-v2.tar', config.tmp_dir)
+        move_imgs('./test-tif-v2/*', config.original_tif_test_image_path, config.tmp_dir)
+
+    puts(colored.cyan('full size tifs ok'))
+    return True
 
 def validate_train_csv(tries):
 
@@ -77,7 +132,6 @@ def validate_train_csv(tries):
         remove_macosx('train_v2.csv.zip', config.tmp_dir)
         unzip_tar('train_v2.csv.zip', config.tmp_dir)
         move_from_tmp('train_v2.csv', config.tmp_dir, config.train_csv_path)
-        clean_tmp()
         return validate_train_csv(tries - 1)
 
     puts(colored.cyan('training csv ok'))
@@ -116,10 +170,9 @@ def remove_macosx(file, path):
 
 def move_from_tmp(file, path, new):
     puts(colored.cyan('* moving files'))
-    print('mv {} ../{}'.format(file, new))
     command('mv {} {}'.format(file, new), path, log=False)
 
-def move_jpgs(source, target, path):
+def move_imgs(source, target, path):
     puts(colored.cyan('* moving files'))
     command('for file in {}; do mv -- "$file" {} ; done'.format(source, target), path, log=False)
 
@@ -127,12 +180,21 @@ def move_jpgs(source, target, path):
 def clean_tmp():
     command('rm -r tmp/*', config.run_dir)
 
+
 def launch():
 
     with indent(4):
 
         puts(colored.magenta('\ninitialising\n'))
+
         validate_directory_structure(directory_structure)
+
         validate_train_csv(1)
+
         validate_original_jpg_train_images(1)
+        validate_original_tif_train_images(1)
+        validate_original_jpg_test_images(1)
+        validate_original_tif_test_images(1)
+
+
         puts('\n')
