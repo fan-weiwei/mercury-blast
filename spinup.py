@@ -22,16 +22,20 @@ def command(command, path, log=True):
 directory_structure = [
     config.tmp_dir,
     config.images_path,
+    config.training_data_dir,
     config.original_jpg_image_path,
     config.original_jpg_train_image_path
 ]
 
 def validate_directory_structure(directories):
+    """
+    Recursively attempt to create directories
+    """
     try:
         head, *tail = directories
 
         if not head:
-            puts(colored.green('directories ok'))
+            puts(colored.cyan('directories ok'))
             return
 
         if not os.path.isdir(head):
@@ -45,11 +49,18 @@ def validate_directory_structure(directories):
 
 def validate_original_jpg_train_images(tries):
     if tries == 0:
-        puts(colored.green('failed to validate training images'))
+        puts(colored.cyan('failed to validate training images'))
         return False
 
+    if not os.path.isfile(config.original_jpg_train_image_path + '/train_0.jpg'):
+        puts(colored.red('downloading original jpgs'))
+        download_kaggle_file('train-jpg.tar.7z', config.tmp_dir)
+        unzip_7z('train-jpg.tar.7z', config.tmp_dir)
+        unzip_tar('train-jpg.tar', config.tmp_dir)
+        move_jpgs('./train-jpg/*', config.original_jpg_train_image_path, config.tmp_dir)
+        clean_tmp()
 
-    puts(colored.green('full size jpgs ok'))
+    puts(colored.cyan('full size jpgs ok'))
     return True
 
 
@@ -60,8 +71,7 @@ def validate_train_csv(tries):
         return False
 
     ## CHECK IF FILE EXISTS
-    file_exists = os.path.isfile(config.train_csv_path)
-    if not file_exists:
+    if not os.path.isfile(config.train_csv_path):
         puts(colored.red('downloading training csv'))
         download_kaggle_file('train_v2.csv.zip', config.tmp_dir)
         remove_macosx('train_v2.csv.zip', config.tmp_dir)
@@ -70,33 +80,49 @@ def validate_train_csv(tries):
         clean_tmp()
         return validate_train_csv(tries - 1)
 
-    puts(colored.green('training csv ok'))
+    puts(colored.cyan('training csv ok'))
     return True
-
 
 def download_kaggle_file(file, path):
 
-    command('kg download -u {} -p {} -c {} -f {}'.format(
-        credentials.login['username'],
-        credentials.login['password'],
-        credentials.login['competition'],
-        file
-    ), path, log=False)
+    if not os.path.isfile(path + file):
+
+        command('kg download -u {} -p {} -c {} -f {}'.format(
+            credentials.login['username'],
+            credentials.login['password'],
+            credentials.login['competition'],
+            file
+        ), path, log=False)
+    else:
+        puts(colored.cyan('defaulting to local {}'.format(file)))
 
 
 def unzip_7z(file, path):
-    command('7z x {}'.format(file), path)
+
+    expected_name = file.replace(".7z", "")
+    if not os.path.isfile(path + expected_name):
+        puts(colored.cyan('* unzipping 7z'))
+        command('7z x {} -aos'.format(file), path, log=False)
+    else:
+        puts(colored.cyan('defaulting to local {}'.format(expected_name)))
 
 
 def unzip_tar(file, path):
+    puts(colored.cyan('* unzipping Tar'))
     command('tar -zxvf {}'.format(file), path, log=False)
-
 
 def remove_macosx(file, path):
     command('zip -d {} \"__MACOSX*\"'.format(file), path, log=False)
 
 def move_from_tmp(file, path, new):
-    command('mv {} ../{}'.format(file, new), path, log=False)
+    puts(colored.cyan('* moving files'))
+    print('mv {} ../{}'.format(file, new))
+    command('mv {} {}'.format(file, new), path, log=False)
+
+def move_jpgs(source, target, path):
+    puts(colored.cyan('* moving files'))
+    command('for file in {}; do mv -- "$file" {} ; done'.format(source, target), path, log=False)
+
 
 def clean_tmp():
     command('rm -r tmp/*', config.run_dir)
@@ -107,8 +133,6 @@ def launch():
 
         puts(colored.magenta('\ninitialising\n'))
         validate_directory_structure(directory_structure)
-        validate_train_csv(5)
-        validate_original_jpg_train_images(5)
-
-
-
+        validate_train_csv(1)
+        validate_original_jpg_train_images(1)
+        puts('\n')
