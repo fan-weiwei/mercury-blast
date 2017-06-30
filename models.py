@@ -33,6 +33,9 @@ class AnnotatedRecord:
     def medium_image(self):
         return cv2.imread('./images/medium/train/{}.jpg'.format(self.name))
 
+    def spectral_image(self):
+        return cv2.imread('./images/spectral64/train/{}.jpg'.format(self.name))
+
 mapping = {
 
     # land labels, 1+

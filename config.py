@@ -1,4 +1,3 @@
-import os
 
 
 run_dir = '/Users/fanweiwei/rainforest/mercury-blast'

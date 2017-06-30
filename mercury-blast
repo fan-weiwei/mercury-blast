@@ -8,20 +8,22 @@ Usage:
   mercury-blast [-h | --help]
   mercury-blast --version
   mercury-blast train
-  mercury-blast pull
   mercury-blast spinup
   mercury-blast nuke
-
 
 """
 
 #from clint.textui import colored, puts, indent
 from docopt import docopt
 
-import pull
+import spinup
+import train
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Mercury Blast 1.0')
 
-    if arguments['pull']:
-        pull.pull()
+    if arguments['spinup']:
+        spinup.run()
+
+    if arguments['train']:
+        train.run()

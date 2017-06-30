@@ -4,7 +4,6 @@ import os
 import config
 import credentials
 import subprocess
-import glob
 
 def command(command, path, log=True):
     if log:
@@ -22,8 +21,6 @@ directory_structure = [
     config.original_tif_image_path,
     config.original_tif_train_image_path,
     config.original_tif_test_image_path,
-
-    config.spectral64_path
 ]
 
 def validate_directory_structure(directories):
@@ -45,79 +42,36 @@ def validate_directory_structure(directories):
 
     except ValueError: pass
 
+def pull_unzip(file, target, test_file, verbose):
 
-def validate_original_jpg_train_images(tries):
-    if tries == 0:
-        puts(colored.cyan('failed to validate training images'))
-        return False
+    if not os.path.isfile(target + '/' + test_file):
+        puts(colored.red('downloading {}'.format(file)))
+        tar_name = file.replace(".7z", "")
+        dir_name = config.tmp_dir + tar_name.replace(".tar", "") + '/*'
+        download_kaggle_file(file, config.tmp_dir)
+        unzip_7z(tar_name, config.tmp_dir)
+        unzip_tar(tar_name, config.tmp_dir)
+        move_imgs(dir_name, target, config.tmp_dir)
 
-    if not os.path.isfile(config.original_jpg_train_image_path + '/train_0.jpg'):
-        puts(colored.red('downloading original jpgs'))
-        download_kaggle_file('train-jpg.tar.7z', config.tmp_dir)
-        unzip_7z('train-jpg.tar.7z', config.tmp_dir)
-        unzip_tar('train-jpg.tar', config.tmp_dir)
-        move_imgs('./train-jpg/*', config.original_jpg_train_image_path, config.tmp_dir)
+        if not os.path.isfile(target + '/' + test_file):
+            puts(colored.red('fail - {}'.format(file)))
+            return
 
-    puts(colored.cyan('train jpgs ok'))
-    return True
+    if verbose: puts(colored.cyan('ok - {}'.format(file)))
 
-def validate_original_tif_train_images(tries):
-    if tries == 0:
-        puts(colored.cyan('failed to validate tif training images'))
-        return False
 
-    if not os.path.isfile(config.original_tif_train_image_path + '/train_0.tif'):
-        puts(colored.red('downloading original train tifs'))
-        download_kaggle_file('train-tif-v2.tar.7z', config.tmp_dir)
-        unzip_7z('train-tif-v2.tar.7z', config.tmp_dir)
-        unzip_tar('train-tif-v2.tar', config.tmp_dir)
-        move_imgs('./train-tif-v2/*', config.original_tif_train_image_path, config.tmp_dir)
+def validate_images(verbose=False):
 
-    puts(colored.cyan('train tifs ok'))
-    return True
+        pull_unzip('train-jpg.tar.7z', config.original_jpg_train_image_path, 'train_0.jpg', verbose)
+        pull_unzip('train-tif-v2.tar.7z', config.original_tif_train_image_path, 'train_0.tif', verbose)
+        pull_unzip('test-jpg.tar.7z', config.original_jpg_test_image_path, 'test_0.jpg', verbose)
+        pull_unzip('test-jpg-additional.tar.7z', config.original_jpg_test_image_path, 'file_0.jpg', verbose)
+        pull_unzip('test-tif-v2.tar.7z', config.original_tif_test_image_path, 'test_0.tif', verbose)
 
-def validate_original_jpg_test_images(tries):
-    if tries == 0:
-        puts(colored.cyan('failed to validate training images'))
-        return False
-
-    if not os.path.isfile(config.original_jpg_test_image_path + '/test_0.jpg'):
-        puts(colored.red('downloading original test jpgs'))
-        download_kaggle_file('test-jpg.tar.7z', config.tmp_dir)
-        unzip_7z('test-jpg.tar.7z', config.tmp_dir)
-        unzip_tar('test-jpg.tar', config.tmp_dir)
-        move_imgs('./test-jpg/*', config.original_jpg_test_image_path, config.tmp_dir)
-
-    if not os.path.isfile(config.original_jpg_test_image_path + '/file_0.jpg'):
-        puts(colored.red('downloading original sized additional test jpgs'))
-        download_kaggle_file('test-jpg-additional.tar.7z', config.tmp_dir)
-        unzip_7z('test-jpg-additional.tar.7z', config.tmp_dir)
-        unzip_tar('test-jpg-additional.tar', config.tmp_dir)
-        move_imgs('./test-jpg-additional/*', config.original_jpg_test_image_path, config.tmp_dir)
-
-    puts(colored.cyan('test jpgs ok'))
-    return True
-
-def validate_original_tif_test_images(tries):
-    if tries == 0:
-        puts(colored.cyan('failed to validate tif training images'))
-        return False
-
-    if not os.path.isfile(config.original_tif_test_image_path + '/test_0.tif'):
-        puts(colored.red('downloading original test tifs'))
-        download_kaggle_file('test-tif-v2.tar.7z', config.tmp_dir)
-        unzip_7z('test-tif-v2.tar.7z', config.tmp_dir)
-        unzip_tar('test-tif-v2.tar', config.tmp_dir)
-        move_imgs('./test-tif-v2/*', config.original_tif_test_image_path, config.tmp_dir)
-
-    puts(colored.cyan('test tifs ok'))
-    return True
-
-def validate_train_csv(tries):
+def validate_train_csv(tries=1, verbose=False):
 
     if tries == 0:
-        puts(colored.green('failed to create training csv'))
-        return False
+        if verbose: puts(colored.green('failed to create training csv'))
 
     ## CHECK IF FILE EXISTS
     if not os.path.isfile(config.train_csv_path):
@@ -128,8 +82,7 @@ def validate_train_csv(tries):
         move_from_tmp('train_v2.csv', config.tmp_dir, config.train_csv_path)
         return validate_train_csv(tries - 1)
 
-    puts(colored.cyan('training csv ok'))
-    return True
+    if verbose: puts(colored.cyan('ok - training csv'))
 
 def download_kaggle_file(file, path):
 
@@ -140,24 +93,26 @@ def download_kaggle_file(file, path):
             credentials.login['password'],
             credentials.login['competition'],
             file
-        ), path, log=False)
+        ), path)
     else:
         puts(colored.cyan('defaulting to local {}'.format(file)))
-
 
 def unzip_7z(file, path):
 
     expected_name = file.replace(".7z", "")
     if not os.path.isfile(path + expected_name):
         puts(colored.cyan('* unzipping 7z'))
-        command('7z x {} -aos'.format(file), path, log=False)
+        command('7z x {} -aos'.format(file), path)
     else:
         puts(colored.cyan('defaulting to local {}'.format(expected_name)))
 
-
 def unzip_tar(file, path):
-    puts(colored.cyan('* unzipping Tar'))
-    command('tar -zxvf {}'.format(file), path, log=False)
+    expected_name = file.replace(".tar", "")
+    if not os.path.isfile(path + expected_name):
+        puts(colored.cyan('* unzipping Tar'))
+        command('tar -zxvf {}'.format(file), path)
+    else:
+        puts(colored.cyan('defaulting to local {}'.format(expected_name)))
 
 def remove_macosx(file, path):
     command('zip -d {} \"__MACOSX*\"'.format(file), path, log=False)
@@ -173,8 +128,9 @@ def move_imgs(source, target, path):
 def clean_tmp():
     command('rm -r tmp/*', config.run_dir)
 
-def has_files(path):
-    return glob.glob(path +'/*.*').__len__() > 1
+
+def initial_check():
+    validate_directory_structure(directory_structure)
 
 
 def pull():
@@ -186,10 +142,6 @@ def pull():
         validate_directory_structure(directory_structure)
 
         validate_train_csv(1)
-
-        validate_original_jpg_train_images(1)
-        validate_original_tif_train_images(1)
-        validate_original_jpg_test_images(1)
-        validate_original_tif_test_images(1)
+        validate_images()
 
         puts('\n')
