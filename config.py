@@ -6,8 +6,6 @@ tmp_dir = run_dir + '/tmp/'
 training_data_dir = run_dir + '/training-data'
 train_csv_path = training_data_dir + '/train.csv'
 
-
-
 #######################################################
 
 images_path = run_dir + '/images'
@@ -25,7 +23,10 @@ original_jpg_train_image_path = original_jpg_image_path + '/train'
 original_tif_train_image_path = original_tif_image_path + '/train'
 
 original_jpg_test_image_path = original_jpg_image_path + '/test'
+
+broken_tif_test_image_path = original_tif_image_path + '/broken'
 original_tif_test_image_path = original_tif_image_path + '/test'
+
 
 #######################################################
 

@@ -11,6 +11,7 @@ def run():
 
         initial_check()
         validate_train_csv()
+        validate_mapping_csv()
         validate_images()
 
         puts(colored.magenta('spectral'))

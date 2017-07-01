@@ -4,6 +4,10 @@ import os
 import config
 import credentials
 import subprocess
+from config import *
+import pandas as pd
+import shutil
+from tqdm import tqdm
 
 def command(command, path, log=True):
     if log:
@@ -21,6 +25,7 @@ directory_structure = [
     config.original_tif_image_path,
     config.original_tif_train_image_path,
     config.original_tif_test_image_path,
+    config.broken_tif_test_image_path
 ]
 
 def validate_directory_structure(directories):
@@ -62,11 +67,30 @@ def pull_unzip(file, target, test_file, verbose):
 
 def validate_images(verbose=False):
 
-        pull_unzip('train-jpg.tar.7z', config.original_jpg_train_image_path, 'train_0.jpg', verbose)
-        pull_unzip('train-tif-v2.tar.7z', config.original_tif_train_image_path, 'train_0.tif', verbose)
-        pull_unzip('test-jpg.tar.7z', config.original_jpg_test_image_path, 'test_0.jpg', verbose)
-        pull_unzip('test-jpg-additional.tar.7z', config.original_jpg_test_image_path, 'file_0.jpg', verbose)
-        pull_unzip('test-tif-v2.tar.7z', config.original_tif_test_image_path, 'test_0.tif', verbose)
+    pull_unzip('train-jpg.tar.7z', config.original_jpg_train_image_path, 'train_0.jpg', verbose)
+    pull_unzip('train-tif-v2.tar.7z', config.original_tif_train_image_path, 'train_0.tif', verbose)
+    pull_unzip('test-jpg.tar.7z', config.original_jpg_test_image_path, 'test_0.jpg', verbose)
+    pull_unzip('test-jpg-additional.tar.7z', config.original_jpg_test_image_path, 'file_0.jpg', verbose)
+    pull_unzip('test-tif-v2.tar.7z', config.broken_tif_test_image_path, 'test_0.tif', verbose)
+
+def fix_test_tifs():
+
+    if not os.path.isfile(config.original_tif_test_image_path + '/file_0.tif'):
+
+        df = pd.read_csv(tmp_dir + 'test_v2_file_mapping.csv')
+        for index, row in tqdm(df.iterrows()):
+            old = os.path.join(broken_tif_test_image_path, row['old'])
+            new = os.path.join(original_tif_test_image_path, row['new'])
+            shutil.copy(old, new)
+
+    if not os.path.isfile(config.original_tif_test_image_path + '/test_0.tif'):
+        tifs = os.listdir(broken_tif_test_image_path)
+
+        for tif in tqdm(tifs):
+            if 'test' not in tif: continue
+            old = os.path.join(broken_tif_test_image_path, tif)
+            new = os.path.join(original_tif_test_image_path, tif)
+            shutil.copy(old, new)
 
 def validate_train_csv(tries=1, verbose=False):
 
@@ -84,6 +108,24 @@ def validate_train_csv(tries=1, verbose=False):
 
     if verbose: puts(colored.cyan('ok - training csv'))
 
+
+def validate_mapping_csv(tries=1, verbose=False):
+
+    if tries == 0:
+        if verbose: puts(colored.green('failed to create mapping csv'))
+
+    ## CHECK IF FILE EXISTS
+    if not os.path.isfile(config.tmp_dir + 'test_v2_file_mapping.csv'):
+        puts(colored.red('downloading test vs mapping csv'))
+        download_kaggle_file('test_v2_file_mapping.csv.zip', config.tmp_dir)
+        remove_macosx('test_v2_file_mapping.csv.zip', config.tmp_dir)
+        unzip_tar('test_v2_file_mapping.csv.zip', config.tmp_dir)
+        move_from_tmp('test_v2_file_mapping.csv', config.tmp_dir, config.tmp_dir + 'test_v2_file_mapping.csv')
+        return validate_train_csv(tries - 1)
+
+    if verbose: puts(colored.cyan('ok - mapping csv'))
+
+
 def download_kaggle_file(file, path):
 
     if not os.path.isfile(path + file):
@@ -98,7 +140,7 @@ def download_kaggle_file(file, path):
         puts(colored.cyan('defaulting to local {}'.format(file)))
 
 def unzip_7z(file, path):
-
+    print('7z x {} -aos'.format(file))
     expected_name = file.replace(".7z", "")
     if not os.path.isfile(path + expected_name):
         puts(colored.cyan('* unzipping 7z'))
@@ -107,6 +149,7 @@ def unzip_7z(file, path):
         puts(colored.cyan('defaulting to local {}'.format(expected_name)))
 
 def unzip_tar(file, path):
+    print('tar -zxvf {}'.format(file))
     expected_name = file.replace(".tar", "")
     if not os.path.isfile(path + expected_name):
         puts(colored.cyan('* unzipping Tar'))
@@ -142,6 +185,7 @@ def pull():
         validate_directory_structure(directory_structure)
 
         validate_train_csv(1)
+        validate_mapping_csv(1)
         validate_images()
 
         puts('\n')
