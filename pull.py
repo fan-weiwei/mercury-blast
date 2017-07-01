@@ -109,7 +109,7 @@ def validate_train_csv(tries=1, verbose=False):
     if verbose: puts(colored.cyan('ok - training csv'))
 
 
-def validate_mapping_csv(tries=1, verbose=False):
+def validate_mapping_csv(tries=1, verbose=True):
 
     if tries == 0:
         if verbose: puts(colored.green('failed to create mapping csv'))
@@ -163,6 +163,15 @@ def unzip_tar(file, path):
     if not os.path.isfile(path + expected_name):
         puts(colored.cyan('* unzipping Tar'))
         command('tar -zxvf {}'.format(file), path)
+    else:
+        puts(colored.cyan('defaulting to local {}'.format(expected_name)))
+
+def unzip(file, path):
+    print('unzip {}'.format(file))
+    expected_name = file.replace(".zip", "")
+    if not os.path.isfile(path + expected_name):
+        puts(colored.cyan('* unzipping zip'))
+        command('unzip {}'.format(file), path)
     else:
         puts(colored.cyan('defaulting to local {}'.format(expected_name)))
 
