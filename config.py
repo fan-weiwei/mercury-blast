@@ -1,6 +1,6 @@
 
 
-run_dir = '/Users/fanweiwei/rainforest/mercury-blast'
+run_dir = '/home/fanweiwei/mercury-blast'
 
 tmp_dir = run_dir + '/tmp/'
 training_data_dir = run_dir + '/training-data'
