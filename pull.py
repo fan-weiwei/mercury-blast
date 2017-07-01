@@ -54,7 +54,7 @@ def pull_unzip(file, target, test_file, verbose):
         tar_name = file.replace(".7z", "")
         dir_name = config.tmp_dir + tar_name.replace(".tar", "") + '/*'
         download_kaggle_file(file, config.tmp_dir)
-        unzip_7z(tar_name, config.tmp_dir)
+        unzip_7z(file, config.tmp_dir)
         unzip_tar(tar_name, config.tmp_dir)
         move_imgs(dir_name, target, config.tmp_dir)
 
@@ -102,14 +102,14 @@ def validate_train_csv(tries=1, verbose=False):
         puts(colored.red('downloading training csv'))
         download_kaggle_file('train_v2.csv.zip', config.tmp_dir)
         remove_macosx('train_v2.csv.zip', config.tmp_dir)
-        unzip_tar('train_v2.csv.zip', config.tmp_dir)
+        unzip('train_v2.csv.zip', config.tmp_dir)
         move_from_tmp('train_v2.csv', config.tmp_dir, config.train_csv_path)
         return validate_train_csv(tries - 1)
 
     if verbose: puts(colored.cyan('ok - training csv'))
 
 
-def validate_mapping_csv(tries=1, verbose=False):
+def validate_mapping_csv(tries=1, verbose=True):
 
     if tries == 0:
         if verbose: puts(colored.green('failed to create mapping csv'))
@@ -119,7 +119,7 @@ def validate_mapping_csv(tries=1, verbose=False):
         puts(colored.red('downloading test vs mapping csv'))
         download_kaggle_file('test_v2_file_mapping.csv.zip', config.tmp_dir)
         remove_macosx('test_v2_file_mapping.csv.zip', config.tmp_dir)
-        unzip_tar('test_v2_file_mapping.csv.zip', config.tmp_dir)
+        unzip('test_v2_file_mapping.csv.zip', config.tmp_dir)
         move_from_tmp('test_v2_file_mapping.csv', config.tmp_dir, config.tmp_dir + 'test_v2_file_mapping.csv')
         return validate_train_csv(tries - 1)
 
@@ -154,6 +154,15 @@ def unzip_tar(file, path):
     if not os.path.isfile(path + expected_name):
         puts(colored.cyan('* unzipping Tar'))
         command('tar -zxvf {}'.format(file), path)
+    else:
+        puts(colored.cyan('defaulting to local {}'.format(expected_name)))
+
+def unzip(file, path):
+    print('unzip {}'.format(file))
+    expected_name = file.replace(".zip", "")
+    if not os.path.isfile(path + expected_name):
+        puts(colored.cyan('* unzipping zip'))
+        command('unzip {}'.format(file), path)
     else:
         puts(colored.cyan('defaulting to local {}'.format(expected_name)))
 

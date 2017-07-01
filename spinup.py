@@ -14,6 +14,8 @@ def run():
         validate_mapping_csv()
         validate_images()
 
+        fix_test_tifs()
+
         puts(colored.magenta('spectral'))
         create_spectral64(original_tif_train_image_path, spectral64_path + '/train')
         create_spectral64(original_tif_test_image_path, spectral64_path + '/test')
