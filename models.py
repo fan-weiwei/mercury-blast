@@ -1,6 +1,7 @@
 from typing import List
 import numpy as np
 import cv2
+from config import *
 
 class AnnotatedRecord:
 
@@ -34,7 +35,7 @@ class AnnotatedRecord:
         return cv2.imread('./images/medium/train/{}.jpg'.format(self.name))
 
     def spectral_image(self):
-        return cv2.imread('./images/spectral64/train/{}.jpg'.format(self.name))
+        return cv2.imread(spectral64_path + '/train/{}.jpg'.format(self.name))
 
 mapping = {
 

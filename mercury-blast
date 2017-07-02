@@ -17,13 +17,18 @@ Usage:
 from docopt import docopt
 
 import spinup
+#import subprocess
 import train
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Mercury Blast 1.0')
 
+
+
     if arguments['spinup']:
         spinup.run()
 
     if arguments['train']:
+        #subprocess.call(['echo $LD_LIBRARY_PATH'], shell=True)
+        #subprocess.call(['pwd'], shell=True)
         train.run()

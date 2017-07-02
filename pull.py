@@ -32,6 +32,7 @@ def validate_directory_structure(directories):
     """
     Recursively attempt to create directories
     """
+
     try:
         head, *tail = directories
 
@@ -158,20 +159,11 @@ def unzip(file, path):
         puts(colored.cyan('defaulting to local {}'.format(expected_name)))
 
 def unzip_tar(file, path):
-    print('tar -zxvf {}'.format(file))
+    print('tar -xvf {}'.format(file))
     expected_name = file.replace(".tar", "")
     if not os.path.isfile(path + expected_name):
         puts(colored.cyan('* unzipping Tar'))
-        command('tar -zxvf {}'.format(file), path)
-    else:
-        puts(colored.cyan('defaulting to local {}'.format(expected_name)))
-
-def unzip(file, path):
-    print('unzip {}'.format(file))
-    expected_name = file.replace(".zip", "")
-    if not os.path.isfile(path + expected_name):
-        puts(colored.cyan('* unzipping zip'))
-        command('unzip {}'.format(file), path)
+        command('tar -xvf {}'.format(file), path)
     else:
         puts(colored.cyan('defaulting to local {}'.format(expected_name)))
 

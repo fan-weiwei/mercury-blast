@@ -35,8 +35,8 @@ def run():
     x_valid = x_data[split:]
     y_train = y_data[:split]
     y_valid = y_data[split:]
-    '''
 
+    '''
     model = Sequential()
     model.add(BatchNormalization(input_shape=(64, 64, 3)))
 
@@ -72,20 +72,20 @@ def run():
 
     print("*** Loading Model ***")
     # load json and create model
-    json_file = open('./models/model.json', 'r')
+    json_file = open(models_path + '/model.json', 'r')
     model_json = json_file.read()
     json_file.close()
     model = model_from_json(model_json)
 
-    model.load_weights("./models/model.h5")
+    model.load_weights(models_path + '/model.h5')
 
     print("*** Saving Old Model ***")
     # Serialize to JSON
     model_json = model.to_json()
-    with open("./models/model-old.json", "w") as json_file:
+    with open(models_path + '/model-old.json', 'w') as json_file:
         json_file.write(model_json)
 
-    model.save_weights("./models/model-old.h5")
+    model.save_weights(models_path + '/model-old.h5')
 
 
 
@@ -98,7 +98,7 @@ def run():
 
     model.fit(x_train, y_train,
               batch_size=128,
-              epochs=8,
+              epochs=50,
               verbose=1,
               validation_data=(x_valid, y_valid))
 
@@ -109,10 +109,10 @@ def run():
     print("*** Saving Model ***")
     # Serialize to JSON
     model_json = model.to_json()
-    with open("./models/model.json", "w") as json_file:
+    with open(models_path + '/model.json', 'w') as json_file:
         json_file.write(model_json)
 
-    model.save_weights("./models/model.h5")
+    model.save_weights(models_path + '/model.h5')
     print("Saved model to disk")
 
 

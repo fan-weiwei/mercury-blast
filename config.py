@@ -40,3 +40,5 @@ spectral64_path = images_path + '/spectral64'
 
 
 sample_submission_path = run_dir + '/submissions/sample_submission.csv'
+
+models_path = run_dir + '/models'
