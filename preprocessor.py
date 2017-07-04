@@ -38,7 +38,20 @@ def create_spectral64(source_path, target_path):
         im.thumbnail((64, 64))
         im.save(target_path + '/' + tif.replace('tif', 'jpg'), 'JPEG', quality=95)
 
+def create_visible(source_path, target_path, size):
+    if not os.path.exists(target_path):
+        os.makedirs(target_path)
+    else:
+        puts(colored.cyan('exists - {}'.format(target_path)))
+        return False
 
+    jpgs = os.listdir(source_path)
+
+    for jpg in tqdm(jpgs):
+        if 'jpg' not in jpg: continue
+        im = Image.open(source_path + '/' + jpg)
+        im.thumbnail((size, size))
+        im.save(target_path + '/' + jpg, "JPEG")
 
 
 def read_data(path: str) -> List[object]:

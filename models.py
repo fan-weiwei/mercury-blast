@@ -28,14 +28,20 @@ class AnnotatedRecord:
               targets[weather_map[t]] = 1
         return targets
 
-    def small_image(self):
-        return cv2.imread('./images/small/train/{}.jpg'.format(self.name))
-
-    def medium_image(self):
-        return cv2.imread('./images/medium/train/{}.jpg'.format(self.name))
-
     def spectral_image(self):
         return cv2.imread(spectral64_path + '/train/{}.jpg'.format(self.name))
+
+    def visible_image(self):
+        return cv2.imread(visible64_path + '/train/{}.jpg'.format(self.name))
+
+    def visible128(self):
+        return cv2.imread(visible128_path + '/train/{}.jpg'.format(self.name))
+
+    def visible196(self):
+        return cv2.imread(visible196_path + '/train/{}.jpg'.format(self.name))
+
+    def visible256(self):
+        return cv2.imread(visible256_path + '/train/{}.jpg'.format(self.name))
 
 mapping = {
 

@@ -31,14 +31,18 @@ original_tif_test_image_path = original_tif_image_path + '/test'
 #######################################################
 
 spectral64_path = images_path + '/spectral64'
-
-
-
+visible64_path = images_path + '/visible64'
+visible128_path = images_path + '/visible128'
+visible196_path = images_path + '/visible196'
+visible256_path = original_jpg_image_path
 
 
 #######################################################
 
 
 sample_submission_path = run_dir + '/submissions/sample_submission.csv'
+submission_path = run_dir + '/submissions'
+diag_path = run_dir + '/diag'
 
 models_path = run_dir + '/models'
+logs_path = run_dir + '/logs'
