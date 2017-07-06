@@ -2,35 +2,21 @@ from keras import callbacks
 from keras import optimizers
 from keras.callbacks import ModelCheckpoint
 
-import models
 import time
-import numpy as np  # linear algebra
 from keras.layers import *
 from keras.models import *
-from tqdm import tqdm
 from tensorflow.contrib.keras.api.keras.callbacks import Callback, EarlyStopping
 
-import preprocessor
-from config import *
 import os
+
+from model import *
 
 def run():
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-    x_train = []
-    y_train = []
-
-    data = preprocessor.read_data(train_csv_path)
-
-    print('*** Importing images ***')
-
-    for item in tqdm(data):
-        x_train.append(models.AnnotatedRecord.visible128(item))
-        y_train.append(models.AnnotatedRecord.some_hot(item))
-
-    x_data = np.array(x_train, np.float16) / 255.
-    y_data = np.array(y_train, np.uint8)
+    x_data = current_model.training_images()
+    y_data = current_model.training_some_hot()
 
     print(x_data.shape)
     print(y_data.shape)
@@ -86,7 +72,7 @@ def run():
     model = model_from_json(model_json)
     '''
     #print("*** Loading Weights ***")
-    model.load_weights(models_path + '/model-old.h5')
+    #model.load_weights(models_path + '/model.h5')
 
     '''
     print("*** Saving Old Model ***")
@@ -96,7 +82,7 @@ def run():
         json_file.write(model_json)
 
     '''
-    model.save_weights(models_path + '/model-old.h5')
+    #model.save_weights(models_path + '/model-old.h5')
 
 
     opt = optimizers.Adam(lr=0.001)
@@ -116,7 +102,7 @@ def run():
     print("*** Training ***")
     model.fit(x_train, y_train,
               batch_size=128,
-              epochs= 1000,
+              epochs= 1,
               verbose=1,
               validation_data=(x_valid, y_valid),
               callbacks=[tensorBoard, checkpointer, earlyStopping])

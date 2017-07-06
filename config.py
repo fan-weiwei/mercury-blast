@@ -1,5 +1,11 @@
 
 
+
+
+
+
+##########################################################
+
 run_dir = '/home/fanweiwei/mercury-blast'
 
 tmp_dir = run_dir + '/tmp/'

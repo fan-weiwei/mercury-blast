@@ -1,15 +1,12 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
-import time
-
 from keras.models import model_from_json
 import numpy as np  # linear algebra
 import pandas as pd
 from tqdm import tqdm
 import preprocessor
 import models
-import cv2
 
 from config import *
 
@@ -17,7 +14,6 @@ def run():
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
     x_train = []
-    x_test = []
     y_train = []
 
     data = preprocessor.read_data(train_csv_path)[30000:]
@@ -39,12 +35,12 @@ def run():
 
     print("*** Loading Model ***")
     # load json and create model
-    json_file = open(models_path + '/super128/model.json', 'r')
+    json_file = open(models_path + '/alt128/model.json', 'r')
     model_json = json_file.read()
     json_file.close()
     model = model_from_json(model_json)
 
-    model.load_weights(models_path + '/super128/model.h5')
+    model.load_weights(models_path + '/alt128/model.h5')
 
     print("*** Compiling Model ***")
     model.compile(loss='binary_crossentropy',
@@ -109,4 +105,4 @@ def run():
     final_df = pd.DataFrame(final_data, columns=['image_name', 'tags'])
     final_df.head()
 
-    final_df.to_csv(diag_path + '/super128.csv', index=False)
+    final_df.to_csv(diag_path + '/alt128.csv', index=False)
