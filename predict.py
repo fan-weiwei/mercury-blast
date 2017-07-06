@@ -8,13 +8,21 @@ import numpy as np  # linear algebra
 import pandas as pd
 from tqdm import tqdm
 import preprocessor
-import models
 import cv2
+from model import *
 
 from config import *
+from record import *
 
 
 def run():
+
+    model_name = 'super128'
+    model_folder = models_path + '/' + model_name
+    model_weights_path = model_folder + '/model.h5'
+    model_predictions_path = model_folder + '/predictions.pickle'
+
+
     print('*** Importing Images ***')
 
     x_test = []
@@ -53,11 +61,11 @@ def run():
 
     predictions = model.predict(x_data)
 
-    thresholds = [0.2] * len(models.inv_mapping)
+    thresholds = current_model.load_thresholds(models_path + '/threshold.pickle')
 
     predictions_labels = []
     for prediction in predictions:
-        labels = [models.inv_mapping[i] for i, value in enumerate(prediction) if value > thresholds[i]]
+        labels = [inv_mapping[i] for i, value in enumerate(prediction) if value > thresholds[i]]
         predictions_labels.append(labels)
 
     print(*predictions_labels[:10], sep='\n')

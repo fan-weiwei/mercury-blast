@@ -9,7 +9,8 @@ Usage:
   mercury-blast --version
   mercury-blast train
   mercury-blast spinup
-  mercury-blast predict (main|diag)
+  mercury-blast predict
+  mercury-blast diag
   mercury-blast nuke
 
 """
@@ -25,7 +26,6 @@ import diag
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Mercury Blast 1.0')
 
-
     if arguments['spinup']:
         spinup.run()
 
@@ -33,9 +33,8 @@ if __name__ == '__main__':
         train.run()
 
     if arguments['predict']:
-        if arguments['main']:
-            predict.run()
+        predict.run()
 
-        if arguments['diag']:
-            diag.run()
+    if arguments['diag']:
+        diag.run()
 
