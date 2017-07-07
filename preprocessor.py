@@ -50,8 +50,33 @@ def create_visible(source_path, target_path, size):
     for jpg in tqdm(jpgs):
         if 'jpg' not in jpg: continue
         im = Image.open(source_path + '/' + jpg)
-        im.thumbnail((size, size))
+        if size != 256:
+            im.thumbnail((size, size))
         im.save(target_path + '/' + jpg, "JPEG")
+
+def create_visible_split(source_path, train_path, validate_path, size):
+    if not os.path.exists(train_path):
+        os.makedirs(train_path)
+    else:
+        puts(colored.cyan('exists - {}'.format(train_path)))
+        return False
+
+    if not os.path.exists(validate_path):
+        os.makedirs(validate_path)
+    else:
+        puts(colored.cyan('exists - {}'.format(validate_path)))
+        return False
+
+    jpgs = os.listdir(source_path)
+
+    for jpg in tqdm(jpgs):
+        if 'jpg' not in jpg: continue
+        im = Image.open(source_path + '/' + jpg)
+        if size != 256:
+            im.thumbnail((size, size))
+
+        im.save(target_path + '/' + jpg, "JPEG")
+
 
 def read_data(path: str) -> List[object]:
     in_data = []

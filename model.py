@@ -10,12 +10,68 @@ from keras.layers import *
 from keras.models import *
 import pickle
 
-
 class Model(ABC):
 
-    @abstractmethod
+    #@abstractmethod
+    #def training_images(self):
+    #    pass
+
+    def load_weights(self, string):
+        self.model.load_weights(string)
+
+    def save_weights(self, string):
+        self.model.save_weights(string)
+
+    def save_thresholds(self, string):
+        with open(string, 'wb') as handle:
+            pickle.dump(self.thresholds, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    def load_thresholds(self, string):
+        with open(string, 'rb') as handle:
+            unserialized_data = pickle.load(handle)
+        return unserialized_data
+
+        # TODO Make image set enum?
+
+
+
+class default_split:
+
+    def __init__(self):
+        data = preprocessor.read_data(train_csv_path)
+        self.training_data = data[:30000]
+        self.validation_data = data[30000:]
+
+        self.training_path = visible128_path + '/train/{}.jpg'
+
+    def load_images(self, data):
+
+        print('*** loading images ***')
+        images = []
+
+        for item in tqdm(data):
+            image = cv2.imread(self.training_path.format(item.name))
+            images.append(image)
+
+        return np.array(images, np.float16) / 255.
+
     def training_images(self):
-        pass
+        return self.load_images(self.training_data)
+
+    def validation_images(self):
+        return self.load_images(self.validation_data)
+
+    def training_some_hot(self):
+        return self.load_annotations(self.training_data)
+
+    def validation_some_hot(self):
+        return self.load_annotations(self.validation_data)
+
+    def training_file_names(self):
+        return [x.name for x in self.training_data]
+
+    def validation_file_names(self):
+        return [x.name for x in self.validation_data]
 
     @staticmethod
     def load_annotations(data):
@@ -31,30 +87,18 @@ class Model(ABC):
 
         return np.array(annotations, np.uint8)
 
+
+
+
 class Super128(Model):
 
     def __init__(self):
-        data = preprocessor.read_data(train_csv_path)
-
-        self.training_data = data[:30000]
-        self.validation_data = data[30000:]
-        self.compile_model()
+        self.split = default_split()
+        self.model = self.compile_model()
         self.thresholds = []
 
-    def load_images(self, data):
-
-        print('*** loading images ***')
-        images = []
-
-        for item in tqdm(data):
-            image = cv2.imread(visible128_path + '/train/{}.jpg'.format(item.name))
-            images.append(image)
-
-        return np.array(images, np.float16) / 255.
-
-
-
-    def compile_model(self):
+    @staticmethod
+    def compile_model():
 
         model = Sequential()
 
@@ -93,51 +137,7 @@ class Super128(Model):
                       optimizer=opt,
                       metrics=['accuracy'])
 
-        self.model = model
-
-    def load_weights(self, string):
-        self.model.load_weights(string)
-
-    def save_weights(self, string):
-        self.model.save_weights(string)
-
-    def save_thresholds(self, string):
-        with open(string, 'wb') as handle:
-            pickle.dump(self.thresholds, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-    def load_thresholds(self, string):
-        with open(string, 'rb') as handle:
-            unserialized_data = pickle.load(handle)
-        return unserialized_data
-
-    def calc_thresholds(self):
-
-
-        print('thresholds')
-
-        pass
-
-
-    #TODO Make image set enum?
-    def training_images(self):
-        return self.load_images(self.training_data)
-
-    def validation_images(self):
-        return self.load_images(self.validation_data)
-
-    def training_some_hot(self):
-        return self.load_annotations(self.training_data)
-
-    def validation_some_hot(self):
-        return self.load_annotations(self.validation_data)
-
-    def training_file_names(self):
-        return [x.name for x in self.training_data]
-
-    def validation_file_names(self):
-        return [x.name for x in self.validation_data]
-
-
+        return model
 
 
 current_model = Super128()

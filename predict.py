@@ -35,7 +35,6 @@ def run():
         x_test.append(img)
 
     #return
-
     x_data = np.array(x_test, np.float16) / 255.
 
     print(x_data.shape)

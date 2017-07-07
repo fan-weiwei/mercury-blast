@@ -14,11 +14,11 @@ def run():
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-    x_train = current_model.training_images()
-    y_train = current_model.training_some_hot()
+    x_train = current_model.split.training_images()
+    y_train = current_model.split.training_some_hot()
 
-    x_valid = current_model.validation_images()
-    y_valid = current_model.validation_some_hot()
+    x_valid = current_model.split.validation_images()
+    y_valid = current_model.split.validation_some_hot()
 
     #model.save_weights(models_path + '/model-old.h5')
     #current_model.load_weights(models_path + '/model.h5')
@@ -31,20 +31,18 @@ def run():
     tensorBoard = callbacks.TensorBoard(log_dir="logs/{}".format(timestr), histogram_freq=0, write_graph=True, write_images=True)
 
     print("*** Training ***")
-    '''
     current_model.model.fit(x_train, y_train,
               batch_size=128,
               epochs= 1,
               verbose=1,
               validation_data=(x_valid, y_valid),
               callbacks=[tensorBoard, checkpointer, earlyStopping])
-              '''
 
-    current_model.thresholds = [0.20] * 17
+    #current_model.thresholds = [0.20] * 17
     #current_model.save_weights(models_path + '/model.h5')
-    current_model.calc_thresholds()
-    current_model.save_thresholds(models_path + '/threshold.pickle')
-    current_model.load_thresholds(models_path + '/threshold.pickle')
+    #current_model.calc_thresholds()
+    #current_model.save_thresholds(models_path + '/threshold.pickle')
+    #current_model.load_thresholds(models_path + '/threshold.pickle')
 
 
     #model.save_weights(models_path + '/model.h5')
