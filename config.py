@@ -37,10 +37,16 @@ original_tif_test_image_path = original_tif_image_path + '/test'
 #######################################################
 
 spectral64_path = images_path + '/spectral64'
+spectral128_path = images_path + '/spectral128'
 visible64_path = images_path + '/visible64'
 visible128_path = images_path + '/visible128'
 visible196_path = images_path + '/visible196'
+visible224_path = images_path + '/visible224'
 visible256_path = original_jpg_image_path
+
+
+current_image_path = images_path + '/vgg256'
+super_image_path = images_path + '/super128'
 
 
 #######################################################

@@ -17,7 +17,7 @@ from record import *
 
 def run():
 
-    model_name = 'super128'
+    model_name = 'nadam128'
     model_folder = models_path + '/' + model_name
     model_weights_path = model_folder + '/model.h5'
     model_predictions_path = model_folder + '/predictions.pickle'
@@ -39,26 +39,13 @@ def run():
 
     print(x_data.shape)
 
-    print("*** Loading Model ***")
-    # load json and create model
-    json_file = open(models_path + '/model.json', 'r')
-    model_json = json_file.read()
-    json_file.close()
-    model = model_from_json(model_json)
-
-    model.load_weights(models_path + '/model.h5')
-
-    print("*** Compiling Model ***")
-    model.compile(loss='binary_crossentropy',
-                  # We NEED binary here, since categorical_crossentropy l1 norms the output before calculating loss.
-                  optimizer='adam',
-                  metrics=['accuracy'])
-
     print("*** Generating Predictions ***")
     #scores = model.evaluate(x_train, y_train, verbose=0)
     #print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
-    predictions = model.predict(x_data)
+
+    current_model.load_weights(model_weights_path)
+    predictions = current_model.model.predict(x_data)
 
     thresholds = current_model.load_thresholds(models_path + '/threshold.pickle')
 
