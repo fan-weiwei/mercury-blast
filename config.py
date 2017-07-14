@@ -40,7 +40,9 @@ spectral64_path = images_path + '/spectral64'
 spectral128_path = images_path + '/spectral128'
 visible64_path = images_path + '/visible64'
 visible128_path = images_path + '/visible128'
+visible160_path = images_path + '/visible160'
 visible196_path = images_path + '/visible196'
+visible200_path = images_path + '/visible200'
 visible224_path = images_path + '/visible224'
 visible256_path = original_jpg_image_path
 

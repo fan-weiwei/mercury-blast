@@ -29,8 +29,14 @@ def run():
         create_visible(original_jpg_train_image_path, visible128_path + '/train', 128)
         create_visible(original_jpg_test_image_path, visible128_path + '/test', 128)
 
+        create_visible(original_jpg_train_image_path, visible160_path + '/train', 160)
+        create_visible(original_jpg_test_image_path, visible160_path + '/test', 160)
+
         create_visible(original_jpg_train_image_path, visible196_path + '/train', 196)
         create_visible(original_jpg_test_image_path, visible196_path + '/test', 196)
+
+        create_visible(original_jpg_train_image_path, visible200_path + '/train', 200)
+        create_visible(original_jpg_test_image_path, visible200_path + '/test', 200)
 
         create_visible(original_jpg_train_image_path, visible224_path + '/train', 224)
         create_visible(original_jpg_test_image_path, visible224_path + '/test', 225)

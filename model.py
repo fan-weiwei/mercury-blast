@@ -93,7 +93,7 @@ class batch_split:
     def __init__(self, training_path):
         data = read_data(train_csv_path)
         self.training_data = data[:30000]
-        self.validation_data = data[30000:]
+        self.validation_data = data[33000:]
         self.training_path = training_path
         self.batch_data = self.randomize_batch()
 
@@ -110,7 +110,7 @@ class batch_split:
         return np.array(images, np.float16) / 255.
 
     def randomize_batch(self):
-        return np.random.choice(self.training_data, 30000, replace=False)
+        return np.random.choice(self.training_data, 16000, replace=False)
 
     def training_images(self):
         return self.load_images(self.batch_data)
@@ -196,7 +196,7 @@ class Spectral128(Ab_Model):
 class Super128(Ab_Model):
 
     def __init__(self):
-        self.split = batch_split(visible128_path + '/train/{}.jpg')
+        self.split = default_split(visible128_path + '/train/{}.jpg')
         self.model = self.compile_model()
         self.thresholds = []
 
@@ -233,10 +233,11 @@ class Super128(Ab_Model):
         model.add(BatchNormalization())
         model.add(Dense(17, activation='sigmoid'))
 
-        opt = optimizers.Nadam(lr=0.002*0.2)
+        opt = optimizers.Nadam(lr=0.002)
+        #opt = optimizers.SGD(lr=0.005, decay=1e-6, momentum=0.9, nesterov=True)
         print("*** Compiling Model ***")
         model.compile(loss='binary_crossentropy',
-                      # We NEED binary here, since categorirom keras import applicationscal_crossentropy l1 norms the output before calculating loss.
+                      # We NEED binary here, since categorical_crossentropy l1 norms the output before calculating loss.
                       optimizer=opt,
                       metrics=['accuracy'])
 
@@ -245,40 +246,51 @@ class Super128(Ab_Model):
 class Xin128(Ab_Model):
 
     def __init__(self):
-        self.split = batch_split(visible64_path + '/train/{}.jpg')
+        self.split = default_split(visible128_path + '/train/{}.jpg')
         self.model = self.compile_model()
         self.thresholds = []
 
     @staticmethod
     def compile_model():
-
         model = Sequential()
 
-        model.add(BatchNormalization(input_shape=(64, 64, 3)))
-        model.add(Conv2D(16, (3, 2), activation='relu'))
-        model.add(Conv2D(16, (2, 3), activation='relu'))
+        model.add(BatchNormalization(input_shape=(128, 128, 3)))
+        model.add(Conv2D(28, (3, 3), padding='same', activation='relu'))
+        model.add(Conv2D(28, (3, 3), activation='relu'))
         model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
         model.add(BatchNormalization())
-        model.add(Conv2D(32, (3, 2), padding='same', activation='relu'))
-        model.add(Conv2D(32, (2, 3), activation='relu'))
+        model.add(Conv2D(48, (3, 3), padding='same', activation='relu'))
+        model.add(Conv2D(48, (3, 3), activation='relu'))
         model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+        model.add(Dropout(0.50))
 
         model.add(BatchNormalization())
-        model.add(Conv2D(64, (3, 2), padding='same', activation='relu'))
-        model.add(Conv2D(64, (2, 3), activation='relu'))
+        model.add(Conv2D(128, (3, 3), padding='same', activation='relu'))
+        model.add(Conv2D(128, (3, 3), activation='relu'))
         model.add(MaxPooling2D((2, 2), strides=(2, 2)))
-        model.add(Dropout(0.90))
+        model.add(Dropout(0.70))
+
+        model.add(BatchNormalization())
+        model.add(Conv2D(128, (3, 3), padding='same', activation='relu'))
+        model.add(Conv2D(128, (3, 3), activation='relu'))
+        model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+        model.add(Dropout(0.70))
+
+        model.add(BatchNormalization())
+        model.add(Conv2D(256, (3, 3), padding='same', activation='relu'))
+        model.add(Conv2D(256, (3, 3), activation='relu'))
+        model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+        model.add(Dropout(0.70))
 
         model.add(Flatten())
-
-        model.add(Dense(64, activation='relu', use_bias=False))
+        model.add(Dense(512, activation='relu', use_bias=False))
         model.add(BatchNormalization())
-        model.add(Dense(64, activation='relu', use_bias=False))
+        model.add(Dense(512, activation='relu', use_bias=False))
         model.add(BatchNormalization())
         model.add(Dense(17, activation='sigmoid'))
 
-        opt = optimizers.Nadam(lr=0.001)
+        opt = optimizers.Nadam(lr=0.002*0.05)
         print("*** Compiling Model ***")
         model.compile(loss='binary_crossentropy',
                       # We NEED binary here, since categorirom keras import applicationscal_crossentropy l1 norms the output before calculating loss.
@@ -368,10 +380,54 @@ class VGG224(Ab_Model):
         print("*** Compiling Model ***")
         model.compile(loss='binary_crossentropy',
                       optimizer=opt,
+                         metrics=['accuracy'])
+
+        return model
+
+from keras import applications
+class ResNet50(Ab_Model):
+
+    def __init__(self):
+        self.split = batch_split(visible200_path + '/train/{}.jpg')
+        self.model = self.compile_model()
+        self.thresholds = []
+
+    @staticmethod
+    def compile_model():
+
+        input_tensor = Input(shape=(200, 200, 3))
+
+        base_model = applications.ResNet50(weights='imagenet', include_top=False, input_tensor=input_tensor)
+        print('Model loaded.')
+
+        # Freeze the layers which you don't want to train
+        for layer in base_model.layers[:46]:
+            layer.trainable = False
+
+        for layer in base_model.layers[48:50]:
+            layer.trainable = False
+
+        # build a classifier model to put on top of the convolutional model
+        top_model = Sequential()
+
+        top_model.add(Flatten(input_shape=base_model.output_shape[1:]))
+        top_model.add(Dropout(0.90))
+        top_model.add(Dense(512, activation='relu'))
+        top_model.add(BatchNormalization())
+        top_model.add(Dense(17, activation='sigmoid'))
+
+
+        model = Model(inputs=base_model.input, outputs=top_model(base_model.output))
+
+        #opt = optimizers.Nadam(lr=0.001)
+        sgd = optimizers.SGD(lr=0.002, decay=1e-6, momentum=0.9, nesterov=True)
+        print("*** Compiling Model ***")
+        model.compile(loss='binary_crossentropy',
+                      optimizer=sgd,
                       metrics=['accuracy'])
 
         return model
 
 
-current_model = VGG224()
+current_model = Xin128()
 
